@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: saveqart-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.render
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: PUPPETEER_EXECUTABLE_PATH
+        value: /usr/bin/chromium
+      - key: SCRAPE_CONCURRENCY
+        value: "2"

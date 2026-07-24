@@ -1,7 +1,7 @@
 const logger = require('../../utils/logger');
 const puppeteer = require('puppeteer');
 
-const EXECUTABLE_PATH = process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/brave-browser';
+const EXECUTABLE_PATH = process.env.PUPPETEER_EXECUTABLE_PATH || null;
 const USER_AGENT =
   'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36';
 
@@ -9,22 +9,34 @@ let browserPromise = null;
 
 /**
  * Single shared headless browser instance across all adapters.
+ * Configured for low-memory environments (Render free tier, etc.)
  */
 async function getBrowser() {
   if (!browserPromise) {
     browserPromise = puppeteer
       .launch({
-        executablePath: EXECUTABLE_PATH,
+        executablePath: EXECUTABLE_PATH || undefined,
         headless: true,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
+          '--disable-gpu',
+          '--disable-software-rasterizer',
+          '--single-process',
+          '--no-zygote',
+          '--disable-extensions',
+          '--disable-background-networking',
+          '--disable-default-apps',
+          '--disable-sync',
+          '--disable-translate',
+          '--metrics-recording-only',
+          '--no-first-run',
           '--disable-blink-features=Automation',
+          '--js-flags=--max-old-space-size=256',
         ],
       })
       .catch((err) => {
-        // Reset so a later call can retry a failed launch.
         browserPromise = null;
         throw err;
       });
