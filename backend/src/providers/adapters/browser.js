@@ -111,7 +111,7 @@ async function waitForAny(page, selectors = [], { timeout = 8000, settle = 1200 
  * which is what actually indicates the product grid has rendered. This defeats
  * the race where a heavy SPA is read before its products hydrate.
  */
-async function waitForProducts(page, selectors = [], { timeout = 15000, priceSignal = true } = {}) {
+async function waitForProducts(page, selectors = [], { timeout = Number(process.env.SCRAPE_PAGE_TIMEOUT || 15000), priceSignal = true } = {}) {
   const start = Date.now();
   const sel = selectors.join(',');
   while (Date.now() - start < timeout) {

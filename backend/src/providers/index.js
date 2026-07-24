@@ -16,6 +16,11 @@ const { fetchFirstResult: fetchStarQuikResult } = require('./adapters/starquik')
 // (the root cause of intermittent not_found). Configurable via env.
 const scrapeLimit = createLimiter(Number(process.env.SCRAPE_CONCURRENCY || 3));
 
+// On free-tier hosting (low CPU), shorten the overall per-provider timeout
+// so the search doesn't hang for 2+ minutes. Providers that can't respond
+// in time simply report "not_found" and the user gets their deep-link.
+const PROVIDER_TIMEOUT_MS = Number(process.env.PROVIDER_TIMEOUT_MS || 20000);
+
 const PROVIDERS = [
   { id: 'blinkit', name: 'Blinkit', color: '#F8CB46', searchUrl: (query) => `https://blinkit.com/s/?q=${encodeURIComponent(query)}` },
   { id: 'zepto', name: 'Zepto', color: '#7C3AED', searchUrl: (query) => `https://www.zeptonow.com/search?query=${encodeURIComponent(query)}` },
@@ -104,9 +109,16 @@ async function resolveProviderResult(provider, query, location) {
   }
 
   try {
-    const previewData = adapter
-      ? await scrapeLimit(() => adapter(query, location))
-      : await fetchGenericResult(provider.name, query, location);
+    // Wrap scrape in a timeout so slow providers don't block the whole search
+    const scrapePromise = adapter
+      ? scrapeLimit(() => adapter(query, location))
+      : fetchGenericResult(provider.name, query, location);
+
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('timeout')), PROVIDER_TIMEOUT_MS)
+    );
+
+    const previewData = await Promise.race([scrapePromise, timeoutPromise]);
 
     // Adapter explicitly reported the location is not serviceable.
     if (previewData && previewData.serviceable === false) {
