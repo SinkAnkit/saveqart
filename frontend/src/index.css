@@ -1,0 +1,210 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────
+   Flat Design — design tokens
+   Single source of truth. Tailwind color names map to these vars
+   (see tailwind.config.js). Bold, vibrant, zero artificial depth.
+   Dark mode is a coherent variant (gray-900 canvas / gray-800
+   blocks) that keeps the same vibrant accents.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+
+  --background: #ffffff;
+  --foreground: #111827; /* gray-900 */
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --muted: #f3f4f6; /* gray-100 */
+  --muted-foreground: #6b7280; /* gray-500 */
+  --border: #e5e7eb; /* gray-200 */
+
+  --primary: #047857; /* emerald-700 — SaveQart brand green (savings) */
+  --primary-hover: #065f46; /* emerald-800 */
+  --primary-foreground: #ffffff;
+
+  --secondary: #2563eb; /* blue-600 — demoted supporting accent */
+  --secondary-hover: #1d4ed8; /* blue-700 */
+  --secondary-foreground: #ffffff;
+
+  --accent: #f59e0b; /* amber-500 */
+  --accent-hover: #d97706; /* amber-600 */
+  --accent-foreground: #111827;
+
+  --ring: #047857;
+
+  /* Soft tint blocks (light) */
+  --tint-primary: #ecfdf5; /* emerald-50 */
+  --tint-secondary: #eff6ff; /* blue-50 */
+  --tint-accent: #fffbeb; /* amber-50 */
+  --tint-neutral: #f3f4f6; /* gray-100 */
+
+  /* On-tint text colors tuned for WCAG AA against the tint blocks above */
+  --on-tint-primary: #065f46; /* emerald-800 */
+  --on-tint-secondary: #1d4ed8; /* blue-700 */
+  --on-tint-accent: #b45309; /* amber-700 */
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* Coherent dark flat palette: deep gray canvas, lighter gray blocks.
+     Accents stay vibrant for the same bold, graphic personality. */
+  --background: #0b0f19; /* near gray-950 */
+  --foreground: #f9fafb; /* gray-50 */
+  --card: #111827; /* gray-900 block */
+  --card-foreground: #f9fafb;
+  --muted: #1f2937; /* gray-800 */
+  --muted-foreground: #9ca3af; /* gray-400 */
+  --border: #374151; /* gray-700 */
+
+  --primary: #10b981; /* emerald-500 — brighter for dark canvas */
+  --primary-hover: #34d399; /* emerald-400 */
+  --primary-foreground: #05271c;
+
+  --secondary: #3b82f6; /* blue supporting accent */
+  --secondary-hover: #60a5fa;
+  --secondary-foreground: #ffffff;
+
+  --accent: #f59e0b;
+  --accent-hover: #fbbf24;
+  --accent-foreground: #111827;
+
+  --ring: #34d399;
+
+  /* Tints become translucent color washes over dark blocks */
+  --tint-primary: rgba(16, 185, 129, 0.14);
+  --tint-secondary: rgba(59, 130, 246, 0.12);
+  --tint-accent: rgba(245, 158, 11, 0.12);
+  --tint-neutral: #1f2937;
+
+  /* On-tint text: lighter tones read clearly over the dark washes */
+  --on-tint-primary: #6ee7b7; /* emerald-300 */
+  --on-tint-secondary: #93c5fd; /* blue-300 */
+  --on-tint-accent: #fcd34d; /* amber-300 */
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-[var(--background)] text-[var(--foreground)] font-sans antialiased;
+}
+
+/* Bricolage Grotesque for display headings, Outfit for body/UI —
+   a deliberate two-family pairing for real typographic hierarchy. */
+.font-display {
+  font-family: 'Bricolage Grotesque', 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* ── Motion: snappy, direct (flat design) ── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@layer components {
+  /* ── Buttons: solid color blocks, color-shift feedback, NO shadow ── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-5 h-12 font-sans
+      text-sm font-semibold transition-colors duration-200 disabled:opacity-50
+      disabled:cursor-not-allowed
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]
+      focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)];
+  }
+  .btn-primary {
+    @apply btn bg-[var(--primary)] text-[var(--primary-foreground)]
+      hover:bg-[var(--primary-hover)];
+  }
+  /* Accent = supporting action (blue) */
+  .btn-accent {
+    @apply btn bg-[var(--secondary)] text-[var(--secondary-foreground)]
+      hover:bg-[var(--secondary-hover)];
+  }
+  /* Secondary = muted block */
+  .btn-secondary {
+    @apply btn bg-[var(--muted)] text-[var(--foreground)]
+      hover:bg-[var(--border)];
+  }
+  /* Outline = border that fills on hover */
+  .btn-outline {
+    @apply btn border-2 border-[var(--primary)] text-[var(--primary)] bg-transparent
+      hover:bg-[var(--primary)] hover:text-white;
+  }
+  /* Ghost = quiet text/muted hover */
+  .btn-ghost {
+    @apply btn bg-transparent text-[var(--foreground)]
+      hover:bg-[var(--muted)];
+  }
+
+  /* ── Inputs: gray block -> white + hard brand border on focus ── */
+  .input {
+    @apply w-full rounded-md bg-[var(--muted)] border-2 border-transparent px-4 py-3
+      text-base text-[var(--foreground)] placeholder-[var(--muted-foreground)]
+      outline-none transition-colors duration-200
+      focus:bg-[var(--card)] focus:border-[var(--primary)];
+  }
+
+  /* ── Cards: flat color blocks, no shadow, moderate radius ── */
+  .card {
+    @apply rounded-lg bg-[var(--card)] text-[var(--card-foreground)];
+  }
+  /* Soft-tint color-block variants */
+  .card-primary {
+    @apply rounded-lg bg-[var(--tint-primary)] text-[var(--card-foreground)];
+  }
+  .card-secondary {
+    @apply rounded-lg bg-[var(--tint-secondary)] text-[var(--card-foreground)];
+  }
+  .card-accent {
+    @apply rounded-lg bg-[var(--tint-accent)] text-[var(--card-foreground)];
+  }
+  .card-muted {
+    @apply rounded-lg bg-[var(--muted)] text-[var(--card-foreground)];
+  }
+
+  /* ── Labels: uppercase wide tracking ── */
+  .label {
+    @apply text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)];
+  }
+
+  /* ── Badge / tag: pill ── */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px]
+      font-semibold uppercase tracking-wider;
+  }
+  .badge-primary { @apply badge bg-[var(--tint-primary)] text-[var(--on-tint-primary)]; }
+  .badge-secondary { @apply badge bg-[var(--tint-secondary)] text-[var(--on-tint-secondary)]; }
+  .badge-accent { @apply badge bg-[var(--tint-accent)] text-[var(--on-tint-accent)]; }
+  .badge-muted { @apply badge bg-[var(--muted)] text-[var(--muted-foreground)]; }
+}
